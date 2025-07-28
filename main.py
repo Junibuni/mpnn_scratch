@@ -17,10 +17,12 @@ def main():
     train_loader, test_loader, dataset = load_data()
 
     if args.model == 'pyg':
+        edge_dim = dataset[0].edge_attr.shape[1] if dataset[0].edge_attr is not None else 0
         model = PyGMPNN(
             in_channels=dataset.num_node_features,
             hidden_channels=64,
-            num_classes=dataset.num_classes
+            num_classes=dataset.num_classes,
+            edge_dim=edge_dim
         )
     elif args.model == 'scratch':
         model = ScratchMPNN(

@@ -3,10 +3,10 @@ import torch.nn.functional as F
 from torch_geometric.nn import MessagePassing, global_mean_pool
 
 class SimpleMPNN(MessagePassing):
-    def __init__(self, in_channels, out_channels):
+    def __init__(self, in_channels, out_channels, edge_dim):
         super(SimpleMPNN, self).__init__(aggr='add')  # 'add', 'mean', 'max'
         self.lin = torch.nn.Linear(in_channels, out_channels)
-        self.edge_mlp = torch.nn.Linear(1, out_channels)
+        self.edge_mlp = torch.nn.Linear(edge_dim, out_channels)
 
     def forward(self, x, edge_index, edge_attr=None):
         x = self.lin(x)
@@ -22,10 +22,10 @@ class SimpleMPNN(MessagePassing):
         return F.relu(aggr_out)
 
 class GNN(torch.nn.Module):
-    def __init__(self, in_channels, hidden_channels, num_classes):
+    def __init__(self, in_channels, hidden_channels, num_classes, edge_dim):
         super(GNN, self).__init__()
-        self.conv1 = SimpleMPNN(in_channels, hidden_channels)
-        self.conv2 = SimpleMPNN(hidden_channels, hidden_channels)
+        self.conv1 = SimpleMPNN(in_channels, hidden_channels, edge_dim)
+        self.conv2 = SimpleMPNN(hidden_channels, hidden_channels, edge_dim)
         self.lin = torch.nn.Linear(hidden_channels, num_classes)
 
     def forward(self, data):
